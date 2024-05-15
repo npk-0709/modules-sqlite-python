@@ -6,7 +6,6 @@
 """
 import sqlite3
 
-
 class SQLite:
     def __init__(self, db_name):
         self.conn = sqlite3.connect(db_name)
@@ -49,6 +48,32 @@ class SQLite:
         select_data_sql = f'SELECT * FROM {table_name}{condition_str}'
         self.cursor.execute(select_data_sql)
         return self.cursor.fetchall()
+
+    def delete_data(self, table_name, condition=None):
+        """
+        Xóa dữ liệu từ bảng dựa trên điều kiện
+
+        :param table_name: Tên bảng
+        :param condition: Điều kiện để xóa dữ liệu (ví dụ: 'age > 21')
+        """
+        condition_str = f' WHERE {condition}' if condition else ''
+        delete_data_sql = f'DELETE FROM {table_name}{condition_str}'
+        self.cursor.execute(delete_data_sql)
+        self.conn.commit()
+
+    def update_data(self, table_name, data, condition=None):
+        """
+        Cập nhật dữ liệu trong bảng dựa trên điều kiện
+
+        :param table_name: Tên bảng
+        :param data: Dữ liệu cần cập nhật (ví dụ: {'name': 'Jane Doe'})
+        :param condition: Điều kiện để cập nhật dữ liệu (ví dụ: 'age > 21')
+        """
+        set_str = ', '.join([f'{key}=?' for key in data.keys()])
+        condition_str = f' WHERE {condition}' if condition else ''
+        update_data_sql = f'UPDATE {table_name} SET {set_str}{condition_str}'
+        self.cursor.execute(update_data_sql, tuple(data.values()))
+        self.conn.commit()
 
     def close_connection(self):
         """Đóng kết nối đến cơ sở dữ liệu"""
